@@ -1,0 +1,162 @@
+.app-shell {
+  width: min(100%, 680px);
+  margin: 0 auto;
+  padding: 28px 18px 48px;
+  color: #eef4ff;
+}
+
+.app-header {
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  margin: 6px 0 10px;
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  line-height: 1.1;
+}
+
+.app-header p {
+  margin: 0;
+  color: #a9bad4;
+  line-height: 1.55;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #78b6ff;
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+}
+
+.lookup-card,
+.preview-card,
+.safety-card {
+  border: 1px solid #2d405d;
+  border-radius: 18px;
+  background: #172235;
+  padding: 20px;
+  margin-top: 16px;
+  box-sizing: border-box;
+}
+
+.field-group {
+  display: block;
+  margin-bottom: 18px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #dbe7fa;
+  font-weight: 700;
+}
+
+.choice-row {
+  display: flex;
+  gap: 10px;
+}
+
+.choice,
+.lookup-button {
+  border: 0;
+  border-radius: 10px;
+  min-height: 46px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.choice {
+  flex: 1;
+  color: #d8e6fb;
+  background: #263852;
+}
+
+.choice.active {
+  color: #07121f;
+  background: #78b6ff;
+}
+
+input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border: 1px solid #405779;
+  border-radius: 10px;
+  background: #0e1725;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+input::placeholder {
+  color: #7183a0;
+}
+
+.lookup-button {
+  width: 100%;
+  color: #06111d;
+  background: #78b6ff;
+}
+
+.preview-card {
+  padding-top: 16px;
+}
+
+.preview-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #2a3b55;
+}
+
+.preview-row:last-child {
+  border-bottom: 0;
+}
+
+.preview-row span {
+  color: #a9bad4;
+}
+
+.preview-row strong {
+  text-align: right;
+  color: #ffffff;
+}
+
+.safety-card {
+  border-color: #735e24;
+  background: #2a2414;
+}
+
+.safety-card strong {
+  color: #ffe49a;
+}
+
+.safety-card p {
+  margin: 8px 0 0;
+  color: #ead9a5;
+  line-height: 1.55;
+}
+
+.message {
+  margin: 16px 0 0;
+  border-radius: 12px;
+  padding: 14px;
+  color: #ffe0e0;
+  background: #512b35;
+  line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+  .app-shell {
+    padding: 20px 14px 36px;
+  }
+
+  .lookup-card,
+  .preview-card,
+  .safety-card {
+    padding: 16px;
+  }
+}
