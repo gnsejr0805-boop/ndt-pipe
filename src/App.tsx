@@ -1,14 +1,35 @@
 import { useState } from 'react'
 import { normalizeNps, normalizeSchedule } from './normalize'
 import {
-  findVerifiedPipeRecord,
+  findSourceCheckedPipeRecord,
   type PipeRecord,
-  type PipeStandard,
+  type PipeTable,
 } from './pipeData'
 import './App.css'
 
+const TABLES: readonly PipeTable[] = ['TABLE_1', 'TABLE_2']
+
+function findMatchingRecords(nps: string, schedule: string): PipeRecord[] {
+  return TABLES.flatMap((table) => {
+    const record = findSourceCheckedPipeRecord(table, nps, schedule)
+    return record ? [record] : []
+  })
+}
+
+function hasConflictingValues(records: PipeRecord[]) {
+  if (records.length < 2) return false
+
+  const first = records[0]
+
+  return records.some(
+    (record) =>
+      record.odMm !== first.odMm ||
+      record.thicknessMm !== first.thicknessMm ||
+      record.thicknessIn !== first.thicknessIn,
+  )
+}
+
 function App() {
-  const [standard, setStandard] = useState<PipeStandard>('B36.10')
   const [nps, setNps] = useState('')
   const [schedule, setSchedule] = useState('')
   const [message, setMessage] = useState('')
@@ -32,24 +53,27 @@ function App() {
     }
 
     if (!normalizedSchedule) {
-      setMessage('스케줄 입력값을 확인하세요. 예: STD, SCH40, SCH40S, S40, 40S')
+      setMessage('스케줄 입력값을 확인하세요. 예: SCH40, SCH40S, S40, 40S, STD')
       return
     }
 
-    const foundRecord = findVerifiedPipeRecord(
-      standard,
-      normalizedNps,
-      normalizedSchedule,
-    )
+    const matches = findMatchingRecords(normalizedNps, normalizedSchedule)
 
-    if (!foundRecord) {
+    if (matches.length === 0) {
       setMessage(
-        `${standard} / NPS ${normalizedNps} / ${normalizedSchedule} 조합의 검수 완료 데이터가 아직 등록되지 않았습니다. t값 출력은 차단됩니다.`,
+        `NPS ${normalizedNps} / ${normalizedSchedule} 조합의 검수 완료 데이터가 아직 등록되지 않았습니다. t값 출력은 차단됩니다.`,
       )
       return
     }
 
-    setResult(foundRecord)
+    if (hasConflictingValues(matches)) {
+      setMessage(
+        `NPS ${normalizedNps} / ${normalizedSchedule} 조합이 둘 이상의 원본 표에서 서로 다른 값으로 발견됐습니다. 확인 전까지 t값 출력은 차단됩니다.`,
+      )
+      return
+    }
+
+    setResult(matches[0])
   }
 
   return (
@@ -57,32 +81,10 @@ function App() {
       <header className="app-header">
         <p className="eyebrow">NDT FIELD TOOL</p>
         <h1>파이프 두께 조회</h1>
-        <p>입력값을 정규화한 뒤, 검증된 기준표에서만 t값을 조회합니다.</p>
+        <p>호칭경과 스케줄을 입력하면 검수 완료된 t값만 조회합니다.</p>
       </header>
 
       <section className="lookup-card">
-        <div className="field-group">
-          <span className="field-label">적용 기준</span>
-
-          <div className="choice-row">
-            <button
-              type="button"
-              className={standard === 'B36.10' ? 'choice active' : 'choice'}
-              onClick={() => setStandard('B36.10')}
-            >
-              B36.10
-            </button>
-
-            <button
-              type="button"
-              className={standard === 'B36.19' ? 'choice active' : 'choice'}
-              onClick={() => setStandard('B36.19')}
-            >
-              B36.19
-            </button>
-          </div>
-        </div>
-
         <label className="field-group">
           <span className="field-label">호칭경 (NPS)</span>
           <input
@@ -97,7 +99,7 @@ function App() {
           <input
             value={schedule}
             onChange={(event) => setSchedule(event.target.value)}
-            placeholder="예: SCH40S, S40, 40S, STD"
+            placeholder="예: SCH40, SCH40S, S40, 40S, STD"
           />
         </label>
 
@@ -108,11 +110,6 @@ function App() {
 
       <section className="preview-card">
         <p className="eyebrow">입력 인식 미리보기</p>
-
-        <div className="preview-row">
-          <span>적용 기준</span>
-          <strong>{standard}</strong>
-        </div>
 
         <div className="preview-row">
           <span>호칭경 해석</span>
@@ -127,7 +124,7 @@ function App() {
 
       {result && (
         <section className="preview-card">
-          <p className="eyebrow">검증 완료 결과</p>
+          <p className="eyebrow">검수 완료 결과</p>
 
           <div className="preview-row">
             <span>호칭경</span>
@@ -153,23 +150,13 @@ function App() {
             <span>두께 (inch)</span>
             <strong>{result.thicknessIn} in</strong>
           </div>
-
-          <div className="preview-row">
-            <span>출처</span>
-            <strong>{result.source}</strong>
-          </div>
-
-          <div className="preview-row">
-            <span>기준판</span>
-            <strong>{result.revision}</strong>
-          </div>
         </section>
       )}
 
       <section className="safety-card">
         <strong>데이터 안전 상태</strong>
         <p>
-          검수 완료된 데이터만 t값을 출력합니다. 데이터가 없거나 기준이 불명확하면 결과를 만들지 않습니다.
+          등록되지 않은 조합, 또는 원본 표끼리 값이 충돌하는 조합은 결과를 만들지 않습니다.
         </p>
       </section>
 
