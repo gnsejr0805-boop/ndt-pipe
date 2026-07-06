@@ -9,9 +9,9 @@ import './App.css'
 
 const TABLES: readonly PipeTable[] = ['TABLE_1', 'TABLE_2']
 
-function findMatchingRecords(nps: string, schedule: string): PipeRecord[] {
+function findMatchingRecords(inch: string, schedule: string): PipeRecord[] {
   return TABLES.flatMap((table) => {
-    const record = findSourceCheckedPipeRecord(table, nps, schedule)
+    const record = findSourceCheckedPipeRecord(table, inch, schedule)
     return record ? [record] : []
   })
 }
@@ -30,25 +30,25 @@ function hasConflictingValues(records: PipeRecord[]) {
 }
 
 function App() {
-  const [nps, setNps] = useState('')
+  const [inch, setInch] = useState('')
   const [schedule, setSchedule] = useState('')
   const [message, setMessage] = useState('')
   const [result, setResult] = useState<PipeRecord | null>(null)
 
-  const normalizedNps = normalizeNps(nps)
+  const normalizedInch = normalizeNps(inch)
   const normalizedSchedule = normalizeSchedule(schedule)
 
   function handleLookup() {
     setMessage('')
     setResult(null)
 
-    if (!nps.trim() || !schedule.trim()) {
-      setMessage('호칭경과 스케줄을 모두 입력하세요.')
+    if (!inch.trim() || !schedule.trim()) {
+      setMessage('인치와 스케줄을 모두 입력하세요.')
       return
     }
 
-    if (!normalizedNps) {
-      setMessage('호칭경 입력값을 확인하세요. 예: 2½, 2.5, 2 1/2')
+    if (!normalizedInch) {
+      setMessage('인치 입력값을 확인하세요. 예: 2½, 2.5, 2 1/2')
       return
     }
 
@@ -57,18 +57,18 @@ function App() {
       return
     }
 
-    const matches = findMatchingRecords(normalizedNps, normalizedSchedule)
+    const matches = findMatchingRecords(normalizedInch, normalizedSchedule)
 
     if (matches.length === 0) {
       setMessage(
-        `NPS ${normalizedNps} / ${normalizedSchedule} 조합의 검수 완료 데이터가 아직 등록되지 않았습니다. t값 출력은 차단됩니다.`,
+        `${normalizedInch}" / ${normalizedSchedule} 조합의 검수 완료 데이터가 아직 등록되지 않았습니다. t값 출력은 차단됩니다.`,
       )
       return
     }
 
     if (hasConflictingValues(matches)) {
       setMessage(
-        `NPS ${normalizedNps} / ${normalizedSchedule} 조합이 둘 이상의 원본 표에서 서로 다른 값으로 발견됐습니다. 확인 전까지 t값 출력은 차단됩니다.`,
+        `${normalizedInch}" / ${normalizedSchedule} 조합이 원본 표에서 서로 다른 값으로 발견됐습니다. 확인 전까지 t값 출력은 차단됩니다.`,
       )
       return
     }
@@ -81,15 +81,15 @@ function App() {
       <header className="app-header">
         <p className="eyebrow">NDT FIELD TOOL</p>
         <h1>파이프 두께 조회</h1>
-        <p>호칭경과 스케줄을 입력하면 검수 완료된 t값만 조회합니다.</p>
+        <p>인치와 스케줄을 입력하면 검수 완료된 t값만 조회합니다.</p>
       </header>
 
       <section className="lookup-card">
         <label className="field-group">
-          <span className="field-label">호칭경 (NPS)</span>
+          <span className="field-label">인치</span>
           <input
-            value={nps}
-            onChange={(event) => setNps(event.target.value)}
+            value={inch}
+            onChange={(event) => setInch(event.target.value)}
             placeholder="예: 2½ 또는 2.5 또는 2 1/2"
           />
         </label>
@@ -112,8 +112,8 @@ function App() {
         <p className="eyebrow">입력 인식 미리보기</p>
 
         <div className="preview-row">
-          <span>호칭경 해석</span>
-          <strong>{normalizedNps || '형식 확인 필요'}</strong>
+          <span>인치 해석</span>
+          <strong>{normalizedInch ? `${normalizedInch}"` : '형식 확인 필요'}</strong>
         </div>
 
         <div className="preview-row">
@@ -127,8 +127,8 @@ function App() {
           <p className="eyebrow">검수 완료 결과</p>
 
           <div className="preview-row">
-            <span>호칭경</span>
-            <strong>NPS {result.nps}</strong>
+            <span>인치</span>
+            <strong>{result.nps}"</strong>
           </div>
 
           <div className="preview-row">
